@@ -18,12 +18,6 @@
     </plugins>
   </build>
   <dependencies>
-      <dependency>
-            <groupId>com.sun.xml.fastinfoset</groupId>
-            <artifactId>FastInfoset</artifactId>
-            <version>1.2.13</version>
-            <scope>compile</scope>
-    </dependency>
     <!-- Does not affect these tests. Jaxb talks directly to the FI library. This would be relevant if we were running comparisons to text XML parsing.
     <dependency>
     	<groupId>org.codehaus.woodstox</groupId>
@@ -32,7 +26,27 @@
         <scope>compile</scope>
 	</dependency>
 	-->
+  
+    <!-- SOLUTION FOUND: Both of the dependency libs below must be specified in order to get performant behavior out of Jaxb by default.
+         See this discussion for details:  https://stackoverflow.com/questions/47639841/disabling-string-interning-within-jaxb2-speeds-up-unmarshalling-from-a-fastinfos
+    -->
     <dependency>
+            <groupId>com.sun.xml.fastinfoset</groupId>
+            <artifactId>FastInfoset</artifactId>
+            <version>1.2.13</version>
+            <scope>compile</scope>
+    </dependency>
+    <!--
+    <dependency>  This artifactId also exists under javax.xml.bind but it appears that nobody uses that one...
+        <groupId>javax.xml</groupId>
+        <artifactId>jaxb-impl</artifactId>
+        <version>2.1</version>
+        <scope>runtime</scope>
+    </dependency>
+    -->
+    
+      
+     <dependency>
 		<groupId>junit</groupId>
     	<artifactId>junit</artifactId>
     	<version>4.12</version>

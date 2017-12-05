@@ -91,6 +91,11 @@ public class FastinfosetCodecTest {
         decodeMany(new InterningSuppressedViaExtendingTheStaxManagerDecoder());
     }
     
+    @Test 
+    public void decodeMany7WithFastinfosetInterningEnabled_NoAttemptToDisableInJaxb() throws Exception {
+        decodeMany(new FastinfosetInterningEnabled_NoAttemptToDisableInJaxb_Decoder());
+    }
+
     
     // Setup primarily happens in method "classSetup()"
     public void decodeMany(Decoder decoder) throws Exception {
@@ -200,7 +205,14 @@ public class FastinfosetCodecTest {
             return codec.decodeWithInterningDisabledUsingCustomFactoryExtension(is);
         }
     }
-    
+
+    private static class FastinfosetInterningEnabled_NoAttemptToDisableInJaxb_Decoder extends Decoder {
+        @Override
+        public XMLStreamReader go(InputStream is) {
+            return codec.decodeWithFIInterningEnabled_noAttemptAtDisabledJaxbInterning(is);
+        }
+    }
+
     
     
 }

@@ -20,21 +20,21 @@ import com.sun.xml.fastinfoset.stax.StAXManager;
 import com.sun.xml.fastinfoset.stax.factory.StAXInputFactory;
 
 public class FastinfosetCodec {
-    /*
-    public XMLStreamReader decode(final byte[] bytes) {
-        return decode(new ByteArrayInputStream(bytes));
-    }
-    */
+
     public XMLStreamReader decodeWithDefaultInterningSettings(final InputStream byteStream) {
         StAXInputFactory xmlInputFactory = new StAXInputFactory();
-
+        
+        // Historical note: Tried using the internal JVM class via the lines below. Found that it by default still spends a lot of time interning strings
+        //        System.setProperty("fastinfosetInputFactoryClass", "com.sun.xml.internal.fastinfoset.stax.factory.StAXInputFactory");
+        //        XMLInputFactory xmlInputFactory = XMLInputFactory.newFactory("fastinfosetInputFactoryClass", this.getClass().getClassLoader());
+        
         XMLStreamReader p;
         try {
             p = xmlInputFactory.createXMLStreamReader(byteStream);
         } catch (XMLStreamException e) {
             throw new RuntimeException(e);
         }
-
+        
         return p;
     }
     
@@ -67,6 +67,7 @@ public class FastinfosetCodec {
         //XMLInputFactory xmlInputFactory = StAXInputFactory.newFactory("com.sun.xml.fastinfoset.stax.StAXDocumentParser", this.getClass().getClassLoader()); // <-- Doesn't work. What 'name' should I use?
         //XMLInputFactory xmlInputFactory = StAXInputFactory.newInstance();// <- Does not returns a factory that supports FI decoding 
         StAXInputFactory xmlInputFactory = new StAXInputFactory();
+        
         xmlInputFactory.setProperty("org.codehaus.stax2.internNames", true); // Fails at runtime / invalid property name
         xmlInputFactory.setProperty("org.codehaus.stax2.internNsUris", true);
 
@@ -89,6 +90,13 @@ public class FastinfosetCodec {
         StAXDocumentParser p = new StAXDocumentParser(byteStream);
         p.setManager(manager);
         p.setStringInterning(true); // With Jaxb's interning turned off unmarshalling fails (quietly / empty object) unless we turn on interning in the FI library.
+
+        return p;
+    }
+
+    public XMLStreamReader decodeWithFIInterningEnabled_noAttemptAtDisabledJaxbInterning(final InputStream byteStream) {
+        StAXDocumentParser p = new StAXDocumentParser(byteStream);
+        p.setStringInterning(true);
 
         return p;
     }
